@@ -1,0 +1,115 @@
+{
+    "type": "Microsoft.Authorization/policyDefinitions",
+    "name": "configure_defender_for_servers_plan",
+    "properties": {
+        "displayName": "SL Configure Azure Defender for servers to be enabled - v1",
+        "policyType": "Custom",
+        "mode": "All",
+        "description": "This policy enables Azure Defender for Server plan on subscription level",
+        "metadata": {
+            "version": "1.1.0",
+            "category": "Security Center"
+        },
+        "parameters": {
+            "dfeServerSubplan": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Defender for Server Sub Plan",
+                    "description": "Defender for Cloud for Server Sub Plan Version [1 | 2]"
+                },
+                "allowedValues": [
+                    "P1",
+                    "P2"
+                ],
+                "defaultValue": "P1"
+            },
+            "effect": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Effect",
+                    "description": "Enable or disable the execution of the policy"
+                },
+                "allowedValues": [
+                    "DeployIfNotExists",
+                    "Disabled"
+                ],
+                "defaultValue": "DeployIfNotExists"
+            }
+        },
+        "policyRule": {
+            "if": {
+                "allOf": [
+                    {
+                        "field": "type",
+                        "equals": "Microsoft.Resources/subscriptions"
+                    }
+                ]
+            },
+            "then": {
+                "effect": "[parameters('effect')]",
+                "details": {
+                    "type": "Microsoft.Security/pricings",
+                    "name": "VirtualMachines",
+                    "deploymentScope": "subscription",
+                    "existenceScope": "subscription",
+                    "roleDefinitionIds": [
+                        "/providers/Microsoft.Authorization/roleDefinitions/fb1c8493-542b-48eb-b624-b4c8fea62acd"
+                    ],
+                    "existenceCondition": {
+                        "allOf": [
+                            {
+                                "field": "Microsoft.Security/pricings/pricingTier",
+                                "equals": "Standard"
+                            },
+                            {
+                                "anyOf": [
+                                    {
+                                        "field": "Microsoft.Security/pricings/subPlan",
+                                        "equals": "P1"
+                                    },
+                                    {
+                                        "field": "Microsoft.Security/pricings/subPlan",
+                                        "equals": "P2"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "deployment": {
+                        "location": "switzerlandnoth",
+                        "properties": {
+                            "mode": "incremental",
+                            "template": {
+                                "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                                "contentVersion": "1.0.0.0",
+                                "parameters": {
+                                    "dfeServerSubplan": {
+                                        "type": "string"
+                                    }
+                                },
+                                "variables": {},
+                                "resources": [
+                                    {
+                                        "type": "Microsoft.Security/pricings",
+                                        "apiVersion": "2024-01-01",
+                                        "name": "VirtualMachines",
+                                        "properties": {
+                                            "pricingTier": "Standard",
+                                            "subPlan": "[parameters('dfeServerSubplan')]"
+                                        }
+                                    }
+                                ],
+                                "outputs": {}
+                            },
+                            "parameters": {
+                                "dfeServerSubplan": {
+                                    "value": "[parameters('dfeServerSubplan')]"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
