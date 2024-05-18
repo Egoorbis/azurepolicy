@@ -11,7 +11,7 @@ permissions:
   id-token: write
 
 env:
-  working-directory: initiative_defender_for_cloud
+  tf_actions_working_dir: initiative_defender_for_cloud
   
 jobs:
   terraform:
@@ -19,7 +19,6 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        shell: bash
         working-directory: ${{ env.tf_actions_working_dir }}
     env:
         TF_LOG: "DEBUG"
@@ -29,7 +28,7 @@ jobs:
         BACKEND_RG: ${{ secrets.RESOURCE_GROUP}}
         BACKEND_SG: ${{ secrets.STORAGE_ACCOUNT}}
         BACKEND_CONTAINER: ${{ secrets.CONTAINER_NAME}}
-        
+
     steps:
       - name: OIDC Login to Azure Public Cloud with AzPowershell (enableAzPSSession true)
         uses: azure/login@v1
