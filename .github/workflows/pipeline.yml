@@ -62,23 +62,11 @@ jobs:
         id: init
         run: |
           terraform init \
-            -backend-config="use_oidc=$ARM_USE_OIDC" \
             -backend-config="resource_group_name=$BACKEND_RG" \
             -backend-config="storage_account_name=$BACKEND_SG" \
             -backend-config="container_name=$BACKEND_CONTAINER" \
             -backend-config="key=$BACKEND_KEY" \
-            -backend-config="use_azuread_auth=$ARM_USE_AAD_AUTH" \
             -reconfigure
-        env:
-          ARM_USE_OIDC: true
-          ARM_USE_AAD_AUTH: true
-          TF_LOG_PATH: "terraform_oidc.log"
-
-      - name: Upload the oidc debug log
-        uses: actions/upload-artifact@v4
-        with:
-          name: tf-debug-oidc-log
-          path: "${{ env.tf_actions_working_dir }}/terraform-oidc.log"
       
       - name: Calculate destroy arg
         id: destroy_arg
@@ -96,10 +84,6 @@ jobs:
         run: |
           terraform plan \
             $DESTROY -no-color -out=out.tfplan
-        env:
-          ARM_USE_OIDC: true
-          TF_LOG_PATH: "terraform-plan-oidc.log"
-        continue-on-error: true
 
       - name: Upload the plan oidc debug log
         uses: actions/upload-artifact@v3
