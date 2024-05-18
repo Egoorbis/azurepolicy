@@ -59,10 +59,10 @@ jobs:
           ARM_USE_AAD_AUTH: true
           TF_LOG_PATH: "terraform_oidc.log"
       - name: Upload the oidc debug log
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tf-debug-oidc-log
-          path: "terraform-oidc.log"
+          path: "/terraform-oidc.log"
       
       - name: Terraform Plan oidc
         id: plan
@@ -74,16 +74,16 @@ jobs:
           TF_LOG_PATH: "terraform-plan-oidc.log"
 
       - name: Upload the plan oidc debug log
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tf-debug-plan-oidc-log
-          path: "terraform-oidc.log"
+          path: "/terraform-oidc.log"
     
       - name: Upload the plan
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tf-plan-oidc
-          path: "out.tfplan.log"
+          path: "/out.tfplan.log"
 
 
       - name: 'Terraform Apply'
