@@ -1,7 +1,5 @@
 terraform {
-  backend "azurerm" {
-    use_azuread_auth = true
-  }
+  backend "azurerm" {}
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -12,7 +10,6 @@ terraform {
 
 provider "azurerm" {
   features {}
-  use_oidc = true
 }
 
 resource "azurerm_resource_group" "rg-aks" {
