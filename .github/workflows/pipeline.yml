@@ -52,9 +52,11 @@ jobs:
             -backend-config="storage_account_name=$STORAGE_ACCOUNT" \
             -backend-config="container_name=$CONTAINER_NAME" \
             -backend-config="key=$BACKEND_KEY" \
+            -backend-config="use_azuread_auth=$ARM_USE_AAD_AUTH" \
             -reconfigure
         env:
           ARM_USE_OIDC: true
+          ARM_USE_AAD_AUTH: true
           TF_LOG_PATH: "terraform_oidc.log"
       - name: Upload the oidc debug log
         uses: actions/upload-artifact@v3
