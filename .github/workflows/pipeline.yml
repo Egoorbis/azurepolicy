@@ -46,9 +46,9 @@ jobs:
         id: init
         run: |
           terraform init \
-            -backend-config="use_oidc=$ARM_USE_OIDC" \ 
+            -backend-config="use_oidc=$ARM_USE_OIDC" \
             -backend-config="resource_group_name=$RESOURCE_GROUP" \
-            -backend-config="storage_account_name=$STORAGE_ACCOUNT" \ 
+            -backend-config="storage_account_name=$STORAGE_ACCOUNT" \
             -backend-config="container_name=$CONTAINER_NAME" \
             -reconfigure
         env:
