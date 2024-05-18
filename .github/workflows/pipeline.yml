@@ -99,6 +99,7 @@ jobs:
         env:
           ARM_USE_OIDC: true
           TF_LOG_PATH: "terraform-plan-oidc.log"
+        continue-on-error: true
 
       - name: Upload the plan oidc debug log
         uses: actions/upload-artifact@v3
