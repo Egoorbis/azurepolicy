@@ -28,6 +28,7 @@ jobs:
         BACKEND_RG: ${{ secrets.RESOURCE_GROUP}}
         BACKEND_SG: ${{ secrets.STORAGE_ACCOUNT}}
         BACKEND_CONTAINER: ${{ secrets.CONTAINER_NAME}}
+        BACKEND_KEY: ${{ secrets.KEY}}
 
     steps:
       - name: OIDC Login to Azure Public Cloud with AzPowershell (enableAzPSSession true)
@@ -50,6 +51,7 @@ jobs:
             -backend-config="resource_group_name=$RESOURCE_GROUP" \
             -backend-config="storage_account_name=$STORAGE_ACCOUNT" \
             -backend-config="container_name=$CONTAINER_NAME" \
+            -backend-config="key=$BACKEND_KEY" \
             -reconfigure
         env:
           ARM_USE_OIDC: true
