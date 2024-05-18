@@ -1,51 +1,69 @@
 name: 'azurePolicyTerraform'
 
 on:
-    pull_request:
-    push:
-        branches:
-            - main
+  pull_request:
+  push:
+      branches:
+          - main
 
 permissions:
-    contents: read
-    id-token: write
+  contents: read
+  id-token: write
+
+env:
+  working-directory: initiative_defender_for_cloud
+  TF_LOG: "DEBUG"
+  ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  BACKEND_RG: ${{ secrets.RESOURCE_GROUP}}
+  BACKEND_SG: ${{ secrets.STORAGE_ACCOUNT}}
+  BACKEND_CONTAINER: ${{ secrets.CONTAINER_NAME}}
   
 jobs:
-    terraform:
-        name: 'azurePolicyTerraform'
-        runs-on: ubuntu-latest
-        defaults:
-            run:
-                shell: bash
-                working-directory: ./initiative_defender_for_cloud
-        steps:
-            - name: OIDC Login to Azure Public Cloud with AzPowershell (enableAzPSSession true)
-              uses: azure/login@v1
-              with:
-                client-id: ${{ secrets.AZURE_CLIENT_ID }}
-                tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-                subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
-            - name: 'Checkout'
-              uses: actions/checkout@v4
-            - name: 'Setup Terraform'
-              uses: hashicorp/setup-terraform@v3
-              with:
-                  terraform_version: 1.8.2
-            - name: 'Terraform Init'
-              id: init
-              run: terraform init -backend-config="resource_group_name=$RESOURCE_GROUP" -backend-config="storage_account_name=$STORAGE_ACCOUNT" -backend-config="container_name=$CONTAINER_NAME"
-            - name: Terraform fmt
-              id: fmt
-              run: terraform fmt -check
-            - name: Terraform Validate
-              id: validate
-              run: terraform validate -no-color
-            - name: 'Terraform Plan'
-              id: plan
-              run: terraform plan
-            - name: 'Terraform Apply'
-              id: apply
-              run: terraform apply -auto-approve  
+  terraform:
+    name: 'azurePolicyTerraform'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: OIDC Login to Azure Public Cloud with AzPowershell (enableAzPSSession true)
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
+      - name: 'Checkout'
+        uses: actions/checkout@v4
+      - name: 'Setup Terraform'
+        uses: hashicorp/setup-terraform@v3
+        with:
+            terraform_version: 1.8.2
+      - name: 'Terraform Init'
+        id: init
+        run: |
+          terraform init \
+           -backend-config="use_oidc=$ARM_USE_OIDC" \ 
+           -backend-config="resource_group_name=$RESOURCE_GROUP" \
+           -backend-config="storage_account_name=$STORAGE_ACCOUNT" \ 
+           -backend-config="container_name=$CONTAINER_NAME" \
+           -reconfigure
+        env:
+          ARM_USE_OIDC: true
+          TF_LOG_PATH: "terraform_oidc.log"
+      - name: Terraform fmt
+        id: fmt
+        run: terraform fmt -check
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+      - name: 'Terraform Plan'
+        id: plan
+        run: terraform plan
+      - name: 'Terraform Apply'
+        id: apply
+        run: terraform apply -auto-approve  
 
 
         
