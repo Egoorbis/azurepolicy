@@ -72,9 +72,9 @@ jobs:
         id: destroy_arg
         run: |
           if [ $DESTROY == "true" ]; then
-            echo "val=-destroy" >> $GITHUB_OUTPUT
+          echo "::set-output name=val::-destroy" 
           else
-            echo "val= " >> $GITHUB_OUTPUT
+            echo "::set-output name=val:: "
           fi
         env:
           DESTROY: ${{ github.event.inputs.destroy }}
