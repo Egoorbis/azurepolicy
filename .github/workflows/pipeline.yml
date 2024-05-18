@@ -62,7 +62,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: tf-debug-oidc-log
-          path: "./terraform-oidc.log"
+          path: "terraform-oidc.log"
       
       - name: Terraform Plan oidc
         id: plan
@@ -77,13 +77,13 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: tf-debug-plan-oidc-log
-          path: "./terraform-oidc.log"
+          path: "terraform-oidc.log"
     
       - name: Upload the plan
         uses: actions/upload-artifact@v3
         with:
           name: tf-plan-oidc
-          path: "./out.tfplan.log"
+          path: "out.tfplan.log"
 
 
       - name: 'Terraform Apply'
