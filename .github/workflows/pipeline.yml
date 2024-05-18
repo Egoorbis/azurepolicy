@@ -9,9 +9,6 @@ on:
 permissions:
   contents: read
   id-token: write
-
-env:
-  tf_actions_working_dir: initiative_defender_for_cloud
   
 jobs:
   terraform:
@@ -19,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ env.tf_actions_working_dir }}
+        shell: bash
     env:
         TF_LOG: "DEBUG"
         ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
@@ -31,18 +28,21 @@ jobs:
         BACKEND_KEY: ${{ secrets.BACKEND_KEY}}
 
     steps:
-      - name: OIDC Login to Azure Public Cloud with AzPowershell (enableAzPSSession true)
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
+
       - name: 'Checkout'
         uses: actions/checkout@v4
+
       - name: 'Setup Terraform'
         uses: hashicorp/setup-terraform@v3
-        with:
-            terraform_version: 1.8.2
+
+      - name: Terraform version
+        id: version
+        run: terraform --version
+        
+      - name: Terraform env
+        id: printenv
+        run: printenv
+
       - name: 'Terraform Init'
         id: init
         run: |
@@ -62,19 +62,33 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: tf-debug-oidc-log
-          path: "${{ env.tf_actions_working_dir }}/terraform-oidc.log"          
-      - name: Terraform fmt
-        id: fmt
-        run: terraform fmt -check
-      - name: Terraform Validate
-        id: validate
-        run: terraform validate -no-color
-      - name: 'Terraform Plan'
+          path: "./terraform-oidc.log"
+      
+      - name: Terraform Plan oidc
         id: plan
-        run: terraform plan
+        run: |
+          terraform plan \
+            -no-color -out=out.tfplan
+        env:
+          ARM_USE_OIDC: true
+          TF_LOG_PATH: "terraform-plan-oidc.log"
+
+      - name: Upload the plan oidc debug log
+        uses: actions/upload-artifact@v3
+        with:
+          name: tf-debug-plan-oidc-log
+          path: "./terraform-oidc.log"
+    
+      - name: Upload the plan
+        uses: actions/upload-artifact@v3
+        with:
+          name: tf-plan-oidc
+          path: "./out.tfplan.log"
+
+
       - name: 'Terraform Apply'
         id: apply
-        run: terraform apply -auto-approve  
+        run: terraform apply -auto-approve out.tfplan 
 
 
         
