@@ -48,9 +48,9 @@ jobs:
         run: |
           terraform init \
             -backend-config="use_oidc=$ARM_USE_OIDC" \
-            -backend-config="resource_group_name=$RESOURCE_GROUP" \
-            -backend-config="storage_account_name=$STORAGE_ACCOUNT" \
-            -backend-config="container_name=$CONTAINER_NAME" \
+            -backend-config="resource_group_name=$BACKEND_RG" \
+            -backend-config="storage_account_name=$BACKEND_SG" \
+            -backend-config="container_name=$BACKEND_CONTAINER" \
             -backend-config="key=$BACKEND_KEY" \
             -backend-config="use_azuread_auth=$ARM_USE_AAD_AUTH" \
             -reconfigure
