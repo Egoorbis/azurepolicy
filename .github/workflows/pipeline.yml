@@ -17,7 +17,7 @@ jobs:
         defaults:
             run:
                 shell: bash
-                working-directory: ./azurepolicy
+                working-directory: ./initiative_defender_for_cloud
         steps:
             - name: OIDC Login to Azure Public Cloud with AzPowershell (enableAzPSSession true)
               uses: azure/login@v1
