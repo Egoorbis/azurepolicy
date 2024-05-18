@@ -28,7 +28,7 @@ jobs:
         BACKEND_RG: ${{ secrets.RESOURCE_GROUP}}
         BACKEND_SG: ${{ secrets.STORAGE_ACCOUNT}}
         BACKEND_CONTAINER: ${{ secrets.CONTAINER_NAME}}
-        BACKEND_KEY: ${{ secrets.KEY}}
+        BACKEND_KEY: ${{ secrets.BACKEND_KEY}}
 
     steps:
       - name: OIDC Login to Azure Public Cloud with AzPowershell (enableAzPSSession true)
