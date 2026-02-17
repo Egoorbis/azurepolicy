@@ -1,0 +1,99 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json",
+    "name": "audit-logic-apps-diagnostic-logs-to-workspace",
+    "properties": {
+        "displayName": "Audit Logic Apps diagnostic logs forwarded to specific Log Analytics workspace",
+        "description": "Audit that specific categories of diagnostic logs are enabled for Logic Apps and forwarded to a specific Log Analytics workspace (for Sentinel). This policy validates both the log categories and the workspace destination to ensure proper SIEM integration.",
+        "metadata": {
+            "category": "Logic Apps",
+            "version": "1.0.0"
+        },
+        "mode": "Indexed",
+        "parameters": {
+            "requiredRetentionDays": {
+                "type": "String",
+                "defaultValue": "365",
+                "metadata": {
+                    "displayName": "Required retention (days)",
+                    "description": "The required diagnostic logs retention in days"
+                }
+            },
+            "logAnalyticsWorkspaceId": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Log Analytics workspace ID",
+                    "description": "The resource ID of the Log Analytics workspace that logs should be forwarded to (e.g., /subscriptions/{subscription-id}/resourceGroups/{resource-group}/providers/Microsoft.OperationalInsights/workspaces/{workspace-name})",
+                    "strongType": "Microsoft.OperationalInsights/workspaces"
+                }
+            },
+            "requiredLogCategories": {
+                "type": "Array",
+                "defaultValue": [
+                    "WorkflowRuntime"
+                ],
+                "metadata": {
+                    "displayName": "Required log categories",
+                    "description": "List of log categories that must be enabled (e.g., WorkflowRuntime)"
+                }
+            },
+            "effect": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Effect",
+                    "description": "AuditIfNotExists or Disabled the execution of the Policy"
+                },
+                "allowedValues": [
+                    "AuditIfNotExists",
+                    "Disabled"
+                ],
+                "defaultValue": "AuditIfNotExists"
+            }
+        },
+        "policyRule": {
+            "if": {
+                "field": "type",
+                "equals": "Microsoft.Logic/workflows"
+            },
+            "then": {
+                "effect": "[parameters('effect')]",
+                "details": {
+                    "type": "Microsoft.Insights/diagnosticSettings",
+                    "existenceCondition": {
+                        "allOf": [
+                            {
+                                "field": "Microsoft.Insights/diagnosticSettings/workspaceId",
+                                "equals": "[parameters('logAnalyticsWorkspaceId')]"
+                            },
+                            {
+                                "count": {
+                                    "field": "Microsoft.Insights/diagnosticSettings/logs[*]",
+                                    "where": {
+                                        "allOf": [
+                                            {
+                                                "field": "Microsoft.Insights/diagnosticSettings/logs[*].category",
+                                                "in": "[parameters('requiredLogCategories')]"
+                                            },
+                                            {
+                                                "field": "Microsoft.Insights/diagnosticSettings/logs[*].enabled",
+                                                "equals": "true"
+                                            },
+                                            {
+                                                "field": "Microsoft.Insights/diagnosticSettings/logs[*].retentionPolicy.enabled",
+                                                "equals": "true"
+                                            },
+                                            {
+                                                "field": "Microsoft.Insights/diagnosticSettings/logs[*].retentionPolicy.days",
+                                                "equals": "[parameters('requiredRetentionDays')]"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "greaterOrEquals": "[length(parameters('requiredLogCategories'))]"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}
