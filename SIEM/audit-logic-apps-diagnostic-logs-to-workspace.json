@@ -11,8 +11,8 @@
         "mode": "Indexed",
         "parameters": {
             "requiredRetentionDays": {
-                "type": "String",
-                "defaultValue": "365",
+                "type": "Integer",
+                "defaultValue": 365,
                 "metadata": {
                     "displayName": "Required retention (days)",
                     "description": "The required diagnostic logs retention in days"
@@ -40,7 +40,7 @@
                 "type": "String",
                 "metadata": {
                     "displayName": "Effect",
-                    "description": "AuditIfNotExists or Disabled the execution of the Policy"
+                    "description": "AuditIfNotExists or Disable the execution of the Policy"
                 },
                 "allowedValues": [
                     "AuditIfNotExists",
