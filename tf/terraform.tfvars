@@ -1,3 +1,9 @@
 # Sample values
-resource_group_name = "rg-terraform-github-actions"
-location            = "eastus"
+resource_group_name       = "rg-cis-benchmark"
+location                  = "eastus"
+project_name              = "cisportal"
+environment               = "dev"
+owner                     = "platform-security"
+app_service_plan_sku      = "P1v3"
+storage_account_tier      = "Standard"
+storage_account_replication = "ZRS"
