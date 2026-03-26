@@ -73,13 +73,13 @@ resource "azurerm_storage_container" "benchmark_uploads" {
 }
 
 resource "azurerm_application_insights" "appinsights" {
-  name                = "${local.name_prefix}-appi"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  application_type    = "web"
-  retention_in_days   = 30
+  name                 = "${local.name_prefix}-appi"
+  resource_group_name  = azurerm_resource_group.rg.name
+  location             = azurerm_resource_group.rg.location
+  application_type     = "web"
+  retention_in_days    = 30
   daily_data_cap_in_gb = 1
-  tags                = local.tags
+  tags                 = local.tags
 }
 
 resource "azurerm_linux_web_app" "cis_benchmark" {
@@ -94,19 +94,19 @@ resource "azurerm_linux_web_app" "cis_benchmark" {
   }
 
   site_config {
-    ftps_state           = "Disabled"
-    minimum_tls_version  = "1.2"
-    http2_enabled        = true
-    always_on            = true
+    ftps_state          = "Disabled"
+    minimum_tls_version = "1.2"
+    http2_enabled       = true
+    always_on           = true
     application_stack {
       node_version = "20-lts"
     }
   }
 
   app_settings = {
-    "WEBSITE_RUN_FROM_PACKAGE"         = "1"
+    "WEBSITE_RUN_FROM_PACKAGE"              = "1"
     "APPLICATIONINSIGHTS_CONNECTION_STRING" = azurerm_application_insights.appinsights.connection_string
-    "AZURE_STORAGE_ACCOUNT_URL"        = azurerm_storage_account.benchmark.primary_blob_endpoint
+    "AZURE_STORAGE_ACCOUNT_URL"             = azurerm_storage_account.benchmark.primary_blob_endpoint
   }
 
   tags = local.tags
