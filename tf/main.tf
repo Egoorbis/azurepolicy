@@ -21,6 +21,7 @@ locals {
   name_prefix            = lower(replace("${var.project_name}-${var.environment}", "[^a-z0-9-]", ""))
   storage_account_prefix = lower(replace("${var.project_name}${var.environment}sa", "[^a-z0-9]", ""))
   storage_account_name   = substr(local.storage_account_prefix, 0, 24)
+  queue_name             = "${local.name_prefix}-parse-jobs"
   tags = {
     environment = var.environment
     project     = var.project_name
@@ -72,6 +73,11 @@ resource "azurerm_storage_container" "benchmark_uploads" {
   container_access_type = "private"
 }
 
+resource "azurerm_storage_queue" "parse_jobs" {
+  name                 = local.queue_name
+  storage_account_name = azurerm_storage_account.benchmark.name
+}
+
 resource "azurerm_application_insights" "appinsights" {
   name                 = "${local.name_prefix}-appi"
   resource_group_name  = azurerm_resource_group.rg.name
@@ -107,6 +113,8 @@ resource "azurerm_linux_web_app" "cis_benchmark" {
     "WEBSITE_RUN_FROM_PACKAGE"              = "1"
     "APPLICATIONINSIGHTS_CONNECTION_STRING" = azurerm_application_insights.appinsights.connection_string
     "AZURE_STORAGE_ACCOUNT_URL"             = azurerm_storage_account.benchmark.primary_blob_endpoint
+    "AZURE_STORAGE_ACCOUNT_NAME"            = azurerm_storage_account.benchmark.name
+    "AZURE_STORAGE_QUEUE_NAME"              = azurerm_storage_queue.parse_jobs.name
   }
 
   tags = local.tags
@@ -115,6 +123,12 @@ resource "azurerm_linux_web_app" "cis_benchmark" {
 resource "azurerm_role_assignment" "webapp_storage_blob_contributor" {
   scope                = azurerm_storage_account.benchmark.id
   role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_linux_web_app.cis_benchmark.identity[0].principal_id
+}
+
+resource "azurerm_role_assignment" "webapp_storage_queue_contributor" {
+  scope                = azurerm_storage_account.benchmark.id
+  role_definition_name = "Storage Queue Data Contributor"
   principal_id         = azurerm_linux_web_app.cis_benchmark.identity[0].principal_id
 }
 
@@ -131,6 +145,11 @@ output "web_app_name" {
 output "storage_account_name" {
   value       = azurerm_storage_account.benchmark.name
   description = "Storage account that holds uploaded benchmarks and evidence."
+}
+
+output "queue_name" {
+  value       = azurerm_storage_queue.parse_jobs.name
+  description = "Queue for async benchmark parsing and assignment jobs."
 }
 
 output "application_insights_connection_string" {
