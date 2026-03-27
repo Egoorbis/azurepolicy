@@ -103,7 +103,7 @@ resource "azurerm_linux_web_app" "cis_benchmark" {
     ftps_state          = "Disabled"
     minimum_tls_version = "1.2"
     http2_enabled       = true
-    always_on           = true
+    always_on           = !contains(["Y1", "FC1"], var.app_service_plan_sku)
     application_stack {
       node_version = "20-lts"
     }
