@@ -1,9 +1,9 @@
 # Sample values
 resource_group_name         = "rg-cis-benchmark"
-location                    = "eastus"
+location                    = "swedencentral"
 project_name                = "cisportal"
 environment                 = "dev"
 owner                       = "platform-security"
-app_service_plan_sku        = "P1v3"
+app_service_plan_sku        = "FC1"
 storage_account_tier        = "Standard"
-storage_account_replication = "ZRS"
+storage_account_replication = "LRS"

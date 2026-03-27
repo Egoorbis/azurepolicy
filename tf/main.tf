@@ -52,7 +52,7 @@ resource "azurerm_storage_account" "benchmark" {
   account_replication_type        = var.storage_account_replication
   min_tls_version                 = "TLS1_2"
   https_traffic_only_enabled      = true
-  shared_access_key_enabled       = false
+  shared_access_key_enabled       = true
   allow_nested_items_to_be_public = false
   public_network_access_enabled   = true
 
@@ -69,13 +69,13 @@ resource "azurerm_storage_account" "benchmark" {
 
 resource "azurerm_storage_container" "benchmark_uploads" {
   name                  = "benchmark-uploads"
-  storage_account_name  = azurerm_storage_account.benchmark.name
+  storage_account_id    = azurerm_storage_account.benchmark.id
   container_access_type = "private"
 }
 
 resource "azurerm_storage_queue" "parse_jobs" {
-  name                 = local.queue_name
-  storage_account_name = azurerm_storage_account.benchmark.name
+  name               = local.queue_name
+  storage_account_id = azurerm_storage_account.benchmark.id
 }
 
 resource "azurerm_application_insights" "appinsights" {
@@ -155,4 +155,5 @@ output "queue_name" {
 output "application_insights_connection_string" {
   value       = azurerm_application_insights.appinsights.connection_string
   description = "Connection string for sending telemetry from the web app."
+  sensitive = true
 }
